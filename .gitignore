@@ -10,6 +10,7 @@ node_modules/
 dist/
 build/
 .expo/
+server/dist/
 
 # Logs
 *.log
@@ -32,3 +33,12 @@ coverage/
 # Prisma
 prisma/*.db
 prisma/*.db-journal
+
+# Generated Prisma Client
+server/src/generated/prisma/
+
+# Local tooling
+.agents/
+.claude/
+.windsurf/
+skills-lock.json
