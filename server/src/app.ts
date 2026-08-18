@@ -1,11 +1,13 @@
 import express from "express";
 import prisma from "./lib/prisma.js";
 import plantRoutes from "./routes/plant.routes";
+import authRoutes from "./routes/auth.routes.js";
 
 const app = express();
 
 app.use(express.json());
 app.use("/api/plants", plantRoutes);
+app.use("/api/auth", authRoutes);
 app.get("/", (_req, res) => {
   res.json({
     message: "Welcome to PlantHub API",
