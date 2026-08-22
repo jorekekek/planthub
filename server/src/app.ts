@@ -2,8 +2,15 @@ import express from "express";
 import prisma from "./lib/prisma.js";
 import plantRoutes from "./routes/plant.routes";
 import authRoutes from "./routes/auth.routes.js";
+import cors from "cors";
 
 const app = express();
+
+app.use(
+  cors({
+    origin: "http://localhost:8081",
+  }),
+);
 
 app.use(express.json());
 app.use("/api/plants", plantRoutes);

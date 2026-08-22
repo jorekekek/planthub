@@ -1,16 +1,17 @@
 import prisma from "../lib/prisma";
 
-export async function getPlants() {
+export async function getPlants(userId: number) {
   return prisma.plant.findMany({
-    orderBy: {
-      createdAt: "desc",
-    },
+    where: { userId },
+    orderBy: { createdAt: "desc" },
   });
 }
-export async function getPlantById(id: number) {
-  return prisma.plant.findUnique({
+
+export async function getPlantById(id: number, userId: number) {
+  return prisma.plant.findFirst({
     where: {
       id,
+      userId,
     },
   });
 }
@@ -29,8 +30,10 @@ export async function createPlant(data: {
     data,
   });
 }
+
 export async function updatePlant(
   id: number,
+  userId: number,
   data: {
     name?: string;
     species?: string;
@@ -41,14 +44,20 @@ export async function updatePlant(
     imageUrl?: string;
   },
 ) {
-  return prisma.plant.update({
-    where: { id },
+  return prisma.plant.updateMany({
+    where: {
+      id,
+      userId,
+    },
     data,
   });
 }
 
-export async function deletePlant(id: number) {
-  return prisma.plant.delete({
-    where: { id },
+export async function deletePlant(id: number, userId: number) {
+  return prisma.plant.deleteMany({
+    where: {
+      id,
+      userId,
+    },
   });
 }

@@ -1,5 +1,6 @@
 import bcrypt from "bcryptjs";
 import prisma from "../lib/prisma";
+import jwt from "jsonwebtoken";
 
 export async function registerUser(data: {
   email: string;
@@ -35,4 +36,55 @@ export async function registerUser(data: {
       updatedAt: true,
     },
   });
+}
+
+export async function loginUser(data: {
+  email: string;
+  password: string;
+}) {
+  const user = await prisma.user.findUnique({
+    where: {
+      email: data.email,
+    },
+  });
+
+  if (!user) {
+    throw new Error("INVALID_CREDENTIALS");
+  }
+
+  const passwordMatches = await bcrypt.compare(
+    data.password,
+    user.passwordHash,
+  );
+
+  if (!passwordMatches) {
+    throw new Error("INVALID_CREDENTIALS");
+  }
+
+  const jwtSecret = process.env.JWT_SECRET;
+
+  if (!jwtSecret) {
+    throw new Error("JWT_SECRET_MISSING");
+  }
+
+  const token = jwt.sign(
+    {
+      sub: user.id,
+      email: user.email,
+    },
+    jwtSecret,
+    {
+      expiresIn: "1h",
+    },
+  );
+
+  return {
+    token,
+    user: {
+      id: user.id,
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+    },
+  };
 }

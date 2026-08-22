@@ -11,13 +11,16 @@ import {
   createPlantSchema,
   updatePlantSchema,
 } from "../validators/plant.validator";
+import type { AuthenticatedRequest } from "../middleware/auth.middleware";
 
 export async function getPlantsController(
-  _req: Request,
+  req: Request,
   res: Response,
 ) {
+  const userId = (req as AuthenticatedRequest).user.id;
+
   try {
-    const plants = await getPlants();
+    const plants = await getPlants(userId);
 
     res.json({
       data: plants,
@@ -30,6 +33,7 @@ export async function getPlantsController(
     });
   }
 }
+
 export async function getPlantByIdController(
   req: Request,
   res: Response,
@@ -43,8 +47,10 @@ export async function getPlantByIdController(
     return;
   }
 
+  const userId = (req as AuthenticatedRequest).user.id;
+
   try {
-    const plant = await getPlantById(id);
+    const plant = await getPlantById(id, userId);
 
     if (!plant) {
       res.status(404).json({
@@ -78,8 +84,13 @@ export async function createPlantController(
     return;
   }
 
+  const userId = (req as AuthenticatedRequest).user.id;
+
   try {
-    const plant = await createPlant(result.data);
+    const plant = await createPlant({
+      ...result.data,
+      userId,
+    });
 
     res.status(201).json({
       data: plant,
@@ -92,6 +103,7 @@ export async function createPlantController(
     });
   }
 }
+
 export async function updatePlantController(
   req: Request,
   res: Response,
@@ -105,27 +117,29 @@ export async function updatePlantController(
     return;
   }
 
-  const result = updatePlantSchema.safeParse(req.body);
+  const validation = updatePlantSchema.safeParse(req.body);
 
-  if (!result.success) {
+  if (!validation.success) {
     res.status(400).json({
       error: "Invalid request data",
-      details: result.error.flatten(),
+      details: validation.error.flatten(),
     });
     return;
   }
 
-  try {
-    const existingPlant = await getPlantById(id);
+  const userId = (req as AuthenticatedRequest).user.id;
 
-    if (!existingPlant) {
+  try {
+    const result = await updatePlant(id, userId, validation.data);
+
+    if (result.count === 0) {
       res.status(404).json({
         error: "Plant not found",
       });
       return;
     }
 
-    const plant = await updatePlant(id, result.data);
+    const plant = await getPlantById(id, userId);
 
     res.json({
       data: plant,
@@ -152,17 +166,17 @@ export async function deletePlantController(
     return;
   }
 
-  try {
-    const existingPlant = await getPlantById(id);
+  const userId = (req as AuthenticatedRequest).user.id;
 
-    if (!existingPlant) {
+  try {
+    const result = await deletePlant(id, userId);
+
+    if (result.count === 0) {
       res.status(404).json({
         error: "Plant not found",
       });
       return;
     }
-
-    await deletePlant(id);
 
     res.status(204).send();
   } catch (error) {

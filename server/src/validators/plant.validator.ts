@@ -1,7 +1,6 @@
 import { z } from "zod";
 
 export const createPlantSchema = z.object({
-  userId: z.number().int().positive(),
   name: z.string().trim().min(1, "Plant name is required"),
   species: z.string().trim().optional(),
   description: z.string().trim().optional(),

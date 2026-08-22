@@ -7,6 +7,9 @@
     "apps/*",
     "server"
   ],
+  "installConfig": {
+    "hoistingLimits": "workspaces"
+  },
   "scripts": {
     "dev": "npm run dev --workspaces --if-present"
   },
@@ -20,5 +23,13 @@
   "bugs": {
     "url": "https://github.com/jorekekek/planthub/issues"
   },
-  "homepage": "https://github.com/jorekekek/planthub#readme"
+  "homepage": "https://github.com/jorekekek/planthub#readme",
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "jsonwebtoken": "^9.0.3"
+  },
+  "devDependencies": {
+    "@types/jsonwebtoken": "^9.0.10",
+    "typescript": "^5.3.3"
+  }
 }

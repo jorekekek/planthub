@@ -6,8 +6,11 @@ import {
   getPlantsController,
   updatePlantController,
 } from "../controllers/plant.controller";
+import { requireAuth } from "../middleware/auth.middleware";
 
 const router = Router();
+
+router.use(requireAuth);
 
 router.get("/", getPlantsController);
 router.get("/:id", getPlantByIdController);
