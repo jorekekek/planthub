@@ -9,12 +9,12 @@ import {
   View,
 } from "react-native";
 import { StatusBar } from "expo-status-bar";
-
+import PlantDetailsScreen from "./src/screens/PlantDetailsScreen";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Ionicons } from "@expo/vector-icons";
-
+import EditPlantScreen from "./src/screens/EditPlantScreen";
 import { login } from "./src/api/client";
 import { getToken, saveToken } from "./src/auth/auth";
 
@@ -47,6 +47,20 @@ function PlantsNavigator() {
           headerBackTitle: "Back",
         }}
       />
+      <PlantsStack.Screen
+  name="PlantDetails"
+  component={PlantDetailsScreen}
+  options={{
+    title: "Plant Details",
+  }}
+/>
+<PlantsStack.Screen
+  name="EditPlant"
+  component={EditPlantScreen}
+  options={{
+    title: "Edit Plant",
+  }}
+/>
     </PlantsStack.Navigator>
   );
 }

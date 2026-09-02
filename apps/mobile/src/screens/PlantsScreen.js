@@ -41,7 +41,14 @@ export default function PlantsScreen({ navigation }) {
 
   function renderPlantItem({ item }) {
     return (
-      <View style={styles.card}>
+     <Pressable
+  style={styles.card}
+  onPress={() =>
+    navigation.navigate("PlantDetails", {
+      plantId: item.id,
+    })
+  }
+>
         <Text style={styles.plantName}>{item.name}</Text>
         {item.species ? (
           <Text style={styles.plantMeta}>{item.species}</Text>
@@ -49,7 +56,7 @@ export default function PlantsScreen({ navigation }) {
         {item.location ? (
           <Text style={styles.plantMeta}>Location: {item.location}</Text>
         ) : null}
-      </View>
+      </Pressable>
     );
   }
 
