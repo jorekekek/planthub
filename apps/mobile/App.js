@@ -10,9 +10,142 @@ import {
 } from "react-native";
 import { StatusBar } from "expo-status-bar";
 
+import { NavigationContainer } from "@react-navigation/native";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { Ionicons } from "@expo/vector-icons";
+
 import { login } from "./src/api/client";
 import { getToken, saveToken } from "./src/auth/auth";
+
 import HomeScreen from "./src/screens/HomeScreen";
+import PlantsScreen from "./src/screens/PlantsScreen";
+import AlertsScreen from "./src/screens/AlertsScreen";
+import GardenScreen from "./src/screens/GardenScreen";
+import SettingsScreen from "./src/screens/SettingsScreen";
+import AddPlantScreen from "./src/screens/AddPlantScreen";
+
+const Tab = createBottomTabNavigator();
+const PlantsStack = createNativeStackNavigator();
+
+function PlantsNavigator() {
+  return (
+    <PlantsStack.Navigator>
+      <PlantsStack.Screen
+        name="PlantsHome"
+        component={PlantsScreen}
+        options={{
+          headerShown: false,
+        }}
+      />
+
+      <PlantsStack.Screen
+        name="AddPlant"
+        component={AddPlantScreen}
+        options={{
+          title: "Add Plant",
+          headerBackTitle: "Back",
+        }}
+      />
+    </PlantsStack.Navigator>
+  );
+}
+
+function MainTabs() {
+  return (
+    <Tab.Navigator
+      initialRouteName="Home"
+      screenOptions={{
+        headerShown: false,
+        tabBarActiveTintColor: "#2f7d46",
+        tabBarInactiveTintColor: "#9aa49d",
+      }}
+    >
+      <Tab.Screen
+        name="Home"
+        component={HomeScreen}
+        options={{
+          tabBarLabel: "Home",
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons
+              name="home-outline"
+              size={size}
+              color={color}
+            />
+          ),
+        }}
+      />
+
+      <Tab.Screen
+        name="Alerts"
+        component={AlertsScreen}
+        options={{
+          tabBarLabel: "Alerts",
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons
+              name="notifications-outline"
+              size={size}
+              color={color}
+            />
+          ),
+        }}
+      />
+
+      <Tab.Screen
+        name="Plants"
+        component={PlantsNavigator}
+        options={{
+          tabBarLabel: "Plants",
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons
+              name="leaf-outline"
+              size={size}
+              color={color}
+            />
+          ),
+        }}
+      />
+
+      <Tab.Screen
+        name="Garden"
+        component={GardenScreen}
+        options={{
+          tabBarLabel: "Garden",
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons
+              name="flower-outline"
+              size={size}
+              color={color}
+            />
+          ),
+        }}
+      />
+
+      <Tab.Screen
+        name="Settings"
+        component={SettingsScreen}
+        options={{
+          tabBarLabel: "Settings",
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons
+              name="settings-outline"
+              size={size}
+              color={color}
+            />
+          ),
+        }}
+      />
+    </Tab.Navigator>
+  );
+}
+
+function MainApp() {
+  return (
+    <NavigationContainer>
+      <MainTabs />
+    </NavigationContainer>
+  );
+}
 
 export default function App() {
   const [authenticated, setAuthenticated] = useState(false);
@@ -26,7 +159,6 @@ export default function App() {
     async function checkAuthentication() {
       try {
         const token = await getToken();
-
         setAuthenticated(Boolean(token));
       } catch (error) {
         console.error("AUTH CHECK ERROR:", error);
@@ -75,14 +207,13 @@ export default function App() {
         <Text style={styles.loadingText}>
           Checking your session...
         </Text>
-
         <StatusBar style="auto" />
       </View>
     );
   }
 
   if (authenticated) {
-    return <HomeScreen />;
+    return <MainApp />;
   }
 
   return (

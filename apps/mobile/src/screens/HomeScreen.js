@@ -199,13 +199,6 @@ export default function HomeScreen() {
         />
       )}
 
-      <View style={styles.bottomNav}>
-        <NavItem label="Home" icon="⌂" active />
-        <NavItem label="Alerts" icon="♧" />
-        <NavItem label="Plants" icon="✿" />
-        <NavItem label="Garden" icon="❀" />
-        <NavItem label="Settings" icon="⚙" />
-      </View>
     </LinearGradient>
   );
 }
@@ -224,29 +217,6 @@ function SensorCard({ title, value, icon }) {
   );
 }
 
-function NavItem({ label, icon, active = false }) {
-  return (
-    <Pressable style={styles.navItem}>
-      <Text
-        style={[
-          styles.navIcon,
-          active && styles.navIconActive,
-        ]}
-      >
-        {icon}
-      </Text>
-
-      <Text
-        style={[
-          styles.navLabel,
-          active && styles.navLabelActive,
-        ]}
-      >
-        {label}
-      </Text>
-    </Pressable>
-  );
-}
 
 const styles = StyleSheet.create({
   screen: {

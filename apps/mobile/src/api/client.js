@@ -44,3 +44,27 @@ export async function getPlants() {
 
   return data.data;
 }
+export async function createPlant(plantData) {
+  const token = await getToken();
+
+  if (!token) {
+    throw new Error("Not authenticated");
+  }
+
+  const response = await fetch(`${API_URL}/api/plants`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(plantData),
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.error || "Failed to create plant");
+  }
+
+  return data.data;
+}
