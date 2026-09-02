@@ -1,22 +1,25 @@
-import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
-  Alert,
   Button,
   StyleSheet,
   Text,
   TextInput,
   View,
+  Alert,
 } from "react-native";
 import { StatusBar } from "expo-status-bar";
-import PlantDetailsScreen from "./src/screens/PlantDetailsScreen";
+
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Ionicons } from "@expo/vector-icons";
-import EditPlantScreen from "./src/screens/EditPlantScreen";
-import { login } from "./src/api/client";
-import { getToken, saveToken } from "./src/auth/auth";
+import { useState } from "react";
+
+import { login as loginRequest } from "./src/api/client";
+import {
+  useAuth,
+  AuthProvider,
+} from "./src/context/AuthContext";
 
 import HomeScreen from "./src/screens/HomeScreen";
 import PlantsScreen from "./src/screens/PlantsScreen";
@@ -24,6 +27,8 @@ import AlertsScreen from "./src/screens/AlertsScreen";
 import GardenScreen from "./src/screens/GardenScreen";
 import SettingsScreen from "./src/screens/SettingsScreen";
 import AddPlantScreen from "./src/screens/AddPlantScreen";
+import PlantDetailsScreen from "./src/screens/PlantDetailsScreen";
+import EditPlantScreen from "./src/screens/EditPlantScreen";
 
 const Tab = createBottomTabNavigator();
 const PlantsStack = createNativeStackNavigator();
@@ -34,9 +39,7 @@ function PlantsNavigator() {
       <PlantsStack.Screen
         name="PlantsHome"
         component={PlantsScreen}
-        options={{
-          headerShown: false,
-        }}
+        options={{ headerShown: false }}
       />
 
       <PlantsStack.Screen
@@ -44,23 +47,24 @@ function PlantsNavigator() {
         component={AddPlantScreen}
         options={{
           title: "Add Plant",
-          headerBackTitle: "Back",
         }}
       />
+
       <PlantsStack.Screen
-  name="PlantDetails"
-  component={PlantDetailsScreen}
-  options={{
-    title: "Plant Details",
-  }}
-/>
-<PlantsStack.Screen
-  name="EditPlant"
-  component={EditPlantScreen}
-  options={{
-    title: "Edit Plant",
-  }}
-/>
+        name="PlantDetails"
+        component={PlantDetailsScreen}
+        options={{
+          title: "Plant Details",
+        }}
+      />
+
+      <PlantsStack.Screen
+        name="EditPlant"
+        component={EditPlantScreen}
+        options={{
+          title: "Edit Plant",
+        }}
+      />
     </PlantsStack.Navigator>
   );
 }
@@ -79,7 +83,6 @@ function MainTabs() {
         name="Home"
         component={HomeScreen}
         options={{
-          tabBarLabel: "Home",
           tabBarIcon: ({ color, size }) => (
             <Ionicons
               name="home-outline"
@@ -94,7 +97,6 @@ function MainTabs() {
         name="Alerts"
         component={AlertsScreen}
         options={{
-          tabBarLabel: "Alerts",
           tabBarIcon: ({ color, size }) => (
             <Ionicons
               name="notifications-outline"
@@ -109,7 +111,6 @@ function MainTabs() {
         name="Plants"
         component={PlantsNavigator}
         options={{
-          tabBarLabel: "Plants",
           tabBarIcon: ({ color, size }) => (
             <Ionicons
               name="leaf-outline"
@@ -124,7 +125,6 @@ function MainTabs() {
         name="Garden"
         component={GardenScreen}
         options={{
-          tabBarLabel: "Garden",
           tabBarIcon: ({ color, size }) => (
             <Ionicons
               name="flower-outline"
@@ -139,7 +139,6 @@ function MainTabs() {
         name="Settings"
         component={SettingsScreen}
         options={{
-          tabBarLabel: "Settings",
           tabBarIcon: ({ color, size }) => (
             <Ionicons
               name="settings-outline"
@@ -161,29 +160,12 @@ function MainApp() {
   );
 }
 
-export default function App() {
-  const [authenticated, setAuthenticated] = useState(false);
-  const [checkingAuth, setCheckingAuth] = useState(true);
+function LoginScreen() {
+  const { login } = useAuth();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    async function checkAuthentication() {
-      try {
-        const token = await getToken();
-        setAuthenticated(Boolean(token));
-      } catch (error) {
-        console.error("AUTH CHECK ERROR:", error);
-        setAuthenticated(false);
-      } finally {
-        setCheckingAuth(false);
-      }
-    }
-
-    checkAuthentication();
-  }, []);
 
   async function handleLogin() {
     try {
@@ -191,9 +173,6 @@ export default function App() {
 
       const result = await login(email, password);
 
-      await saveToken(result.token);
-
-      setAuthenticated(true);
       setPassword("");
 
       Alert.alert(
@@ -212,22 +191,6 @@ export default function App() {
     } finally {
       setLoading(false);
     }
-  }
-
-  if (checkingAuth) {
-    return (
-      <View style={styles.center}>
-        <ActivityIndicator size="large" />
-        <Text style={styles.loadingText}>
-          Checking your session...
-        </Text>
-        <StatusBar style="auto" />
-      </View>
-    );
-  }
-
-  if (authenticated) {
-    return <MainApp />;
   }
 
   return (
@@ -267,6 +230,39 @@ export default function App() {
 
       <StatusBar style="auto" />
     </View>
+  );
+}
+
+function Root() {
+  const {
+    authenticated,
+    checkingAuth,
+  } = useAuth();
+
+  if (checkingAuth) {
+    return (
+      <View style={styles.center}>
+        <ActivityIndicator size="large" />
+
+        <Text style={styles.loadingText}>
+          Checking your session...
+        </Text>
+      </View>
+    );
+  }
+
+  return authenticated ? (
+    <MainApp />
+  ) : (
+    <LoginScreen />
+  );
+}
+
+export default function App() {
+  return (
+    <AuthProvider>
+      <Root />
+    </AuthProvider>
   );
 }
 

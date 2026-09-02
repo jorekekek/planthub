@@ -28,3 +28,4 @@ export async function removeToken() {
 
   await SecureStore.deleteItemAsync(TOKEN_KEY);
 }
+
